@@ -5,10 +5,10 @@ import {
   REST,
   Routes,
 } from "discord.js";
-import { catchAllInteractionReply } from "./utils/funcs";
-import { ConfigType } from "./utils/config";
-import { Command, CommandContext, HandlerContext } from "./bot.types";
-import { loadCommands } from "./commands/loader";
+import { catchAllInteractionReply } from "./utils/funcs.js";
+import { ConfigType } from "./utils/config.js";
+import { Command, CommandContext, HandlerContext } from "./bot.types.js";
+import { loadCommands } from "./commands/loader.js";
 
 export async function initCommands(
   config: ConfigType,

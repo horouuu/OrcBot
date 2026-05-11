@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { z } from "zod";
-import { SnakeToCamel, snakeToCamel } from "./funcs";
+import { SnakeToCamel, snakeToCamel } from "./funcs.js";
 
 let variableStoreName = "environment variables";
 if (process.env.NODE_ENV !== "production") {

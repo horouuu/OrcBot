@@ -1,8 +1,8 @@
 import { Client, Events, Partials, GatewayIntentBits } from "discord.js";
-import { Config } from "./utils/config";
-import { HandlerContext } from "./bot.types";
-import { commandHandler, initCommands } from "./command-handler";
-import { RedisStorage } from "./storage/RedisStorage";
+import { Config } from "./utils/config.js";
+import { HandlerContext } from "./bot.types.js";
+import { commandHandler, initCommands } from "./command-handler.js";
+import { RedisStorage } from "./storage/RedisStorage.js";
 
 const config = new Config();
 const storage = await RedisStorage.create(config);

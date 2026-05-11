@@ -1,5 +1,5 @@
-import { ConfigType } from "../utils/config";
-import { Storage } from "./Storage";
+import { ConfigType } from "../utils/config.js";
+import { Storage } from "./Storage.js";
 import { createClient } from "redis";
 
 enum RedisTypes {
@@ -13,6 +13,15 @@ type storeKeys = "petHolder";
 
 export class RedisStorage extends Storage {
   private _client: ReturnType<typeof createClient>;
+
+  public static async create(config: ConfigType) {
+    const client = createClient({ url: config.redisUrl });
+
+    client.on("err", (e) => console.error(e));
+    await client.connect();
+
+    return new RedisStorage(client);
+  }
 
   private constructor(client: ReturnType<typeof createClient>) {
     super();
@@ -55,14 +64,5 @@ export class RedisStorage extends Storage {
 
   public async setPetHolder(holder: string): Promise<void> {
     await this.set("petHolder", holder);
-  }
-
-  public static async create(config: ConfigType) {
-    const client = createClient({ url: config.redisUrl });
-
-    client.on("err", (e) => console.error(e));
-    await client.connect();
-
-    return new RedisStorage(client);
   }
 }

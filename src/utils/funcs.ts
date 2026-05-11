@@ -1,4 +1,4 @@
-import { CommandContext } from "../bot.types";
+import { CommandContext } from "../bot.types.js";
 import { MessageFlags } from "discord.js";
 
 const ERR_MSG_GENERIC =

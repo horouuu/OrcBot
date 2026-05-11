@@ -1,5 +1,5 @@
 import { MessageFlags, SlashCommandBuilder } from "discord.js";
-import { CommandContext, Command } from "../bot.types";
+import { CommandContext, Command } from "../bot.types.js";
 
 const pingData = new SlashCommandBuilder()
   .setName("ping")

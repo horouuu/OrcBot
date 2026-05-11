@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "node:path";
 import { pathToFileURL } from "url";
-import { Command } from "../bot.types";
+import { Command } from "../bot.types.js";
 
 const extension: string = process.env.NODE_ENV !== "production" ? ".ts" : ".js";
 

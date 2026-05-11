@@ -4,8 +4,8 @@ import {
   Client,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from "discord.js";
-import { ConfigType } from "./utils/config";
-import { Storage } from "./storage/Storage";
+import { ConfigType } from "./utils/config.js";
+import { Storage } from "./storage/Storage.js";
 
 export type HandlerContext = {
   client: Client<boolean>;
