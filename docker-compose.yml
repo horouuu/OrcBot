@@ -1,0 +1,23 @@
+services:
+  bot:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: orcbot
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      TOKEN: "${TOKEN}"
+      APP_ID: "${APP_ID}"
+      ACTION_THRESHOLD: "${ACTION_THRESHOLD:-3}"
+      REDIS_URL: "${REDIS_URL}"
+
+  redis:
+    image: redis:8.2.1
+    container_name: larpbot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
