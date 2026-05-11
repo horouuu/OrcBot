@@ -2,9 +2,10 @@ import { Client, Events, Partials, GatewayIntentBits } from "discord.js";
 import { Config } from "./utils/config";
 import { HandlerContext } from "./bot.types";
 import { commandHandler, initCommands } from "./command-handler";
+import { RedisStorage } from "./storage/RedisStorage";
 
 const config = new Config();
-const storage = {};
+const storage = await RedisStorage.create(config);
 
 const client = new Client({
   intents: [
