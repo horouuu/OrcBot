@@ -1,4 +1,9 @@
-import { SlashCommandBuilder } from "discord.js";
+import {
+  EmbedBuilder,
+  MessageFlags,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
 import { CommandContext } from "../bot.types.js";
 import { catchAllInteractionReply } from "../utils/funcs.js";
 export type petKeys = "summon" | "furnace";
@@ -9,11 +14,11 @@ enum petSubcommandGroup {
 }
 
 const petData = new SlashCommandBuilder()
-  .setName(petSubcommandGroup.PET_CHECK)
+  .setName("pet")
   .setDescription("Check who currently has the pet.")
   .addSubcommandGroup((opt) =>
     opt
-      .setName("check")
+      .setName(petSubcommandGroup.PET_CHECK)
       .setDescription("Check who currently holds a certain pet.")
       .addSubcommand((opt) =>
         opt
@@ -34,7 +39,7 @@ const petData = new SlashCommandBuilder()
         opt
           .setName("summon")
           .setDescription("Update the summon pet's holder.")
-          .addStringOption((opt) =>
+          .addUserOption((opt) =>
             opt
               .setName("holder")
               .setDescription("Name of the new holder of this pet.")
@@ -45,7 +50,7 @@ const petData = new SlashCommandBuilder()
         opt
           .setName("furnace")
           .setDescription("Update the furnace pet's holder.")
-          .addStringOption((opt) =>
+          .addUserOption((opt) =>
             opt
               .setName("holder")
               .setDescription("Name of the new holder of this pet.")
@@ -54,15 +59,16 @@ const petData = new SlashCommandBuilder()
       ),
   );
 
-async function handleSet(
-  ctx: CommandContext & { pet: petKeys; holder: string },
-) {
+async function handleSet(ctx: CommandContext & { pet: petKeys; holder: User }) {
   const { pet, holder, interaction, storage } = ctx;
   try {
-    await storage.setPetHolder(pet, holder);
-    await interaction.reply(
-      `Holder of the ${pet} pet has been set to: \`${holder}\``,
-    );
+    await storage.setPetHolder(pet, holder.id);
+    const resEmbed = new EmbedBuilder()
+      .setColor(pet === "summon" ? "Aqua" : "DarkRed")
+      .setDescription(`The ${pet} pet's holder is now: <@${holder.id}>.`);
+    await interaction.reply({
+      embeds: [resEmbed],
+    });
   } catch (e) {
     catchAllInteractionReply(interaction);
   }
@@ -71,11 +77,16 @@ async function handleSet(
 async function handleCheck(ctx: CommandContext & { pet: petKeys }) {
   const { pet, interaction, storage } = ctx;
   try {
-    const holder = await storage.getPetHolder(pet);
-    const res = holder
-      ? `The pet is currently held by: \`${holder}\`.`
-      : `The pet is currently not held by anyone.`;
-    await interaction.reply(res);
+    const holderId = await storage.getPetHolder(pet);
+    const resEmbed = new EmbedBuilder().setColor(
+      pet === "summon" ? "Aqua" : "DarkRed",
+    );
+    const desc = holderId
+      ? `The \`${pet}\` pet is currently held by: <@${holderId}>.`
+      : `The \`${pet}\` pet is currently not held by anyone.`;
+
+    resEmbed.setDescription(desc);
+    await interaction.reply({ embeds: [resEmbed] });
   } catch (e) {
     catchAllInteractionReply(interaction);
   }
@@ -92,7 +103,15 @@ const pet = {
     if (cmdGroup === petSubcommandGroup.PET_CHECK) {
       await handleCheck({ ...cmdContext, pet });
     } else {
-      const holder = interaction.options.getString("holder") ?? "";
+      const holder = interaction.options.getUser("holder");
+      if (!holder) {
+        await interaction.reply({
+          content: "Command must include an input for: \`holder\` (User).",
+          flags: MessageFlags.Ephemeral,
+        });
+
+        return;
+      }
       await handleSet({ ...cmdContext, pet, holder });
     }
   },
