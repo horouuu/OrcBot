@@ -1,6 +1,7 @@
 import { ConfigType } from "../utils/config.js";
 import { Storage } from "./Storage.js";
 import { createClient } from "redis";
+import { petKeys } from "../commands/pet.js";
 
 enum RedisTypes {
   STRING = "string",
@@ -9,7 +10,7 @@ enum RedisTypes {
   NONE = "none",
 }
 
-type storeKeys = "petHolder";
+type storeKeys = petKeys;
 
 export class RedisStorage extends Storage {
   private _client: ReturnType<typeof createClient>;
@@ -58,11 +59,11 @@ export class RedisStorage extends Storage {
     }
   }
 
-  public async getPetHolder(): Promise<string | null> {
-    return await this.get("petHolder");
+  public async getPetHolder(key: petKeys): Promise<string | null> {
+    return await this.get(key);
   }
 
-  public async setPetHolder(holder: string): Promise<void> {
-    await this.set("petHolder", holder);
+  public async setPetHolder(pet: petKeys, holder: string): Promise<void> {
+    await this.set(pet, holder);
   }
 }
