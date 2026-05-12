@@ -1,18 +1,14 @@
-import {
-  User,
-  EmbedBuilder,
-  SlashCommandSubcommandGroupBuilder,
-} from "discord.js";
+import { EmbedBuilder, SlashCommandSubcommandGroupBuilder } from "discord.js";
 import { CommandContext } from "../../bot.types.js";
 import { catchAllInteractionReply } from "../../utils/funcs.js";
-import { petKeys } from "../pet.js";
-import { petSubcommandGroup } from "./_pet-utils.js";
+import { petColors, PetType } from "./_pet-utils.js";
+import { petCommands } from "./_pet-utils.js";
 
 export const buildSetPetSubcommandGroup = (
   opt: SlashCommandSubcommandGroupBuilder,
 ) =>
   opt
-    .setName(petSubcommandGroup.PET_SET)
+    .setName(petCommands.PET_SET)
     .setDescription("Update the current pet holder.")
     .addSubcommand((opt) =>
       opt
@@ -37,19 +33,17 @@ export const buildSetPetSubcommandGroup = (
         ),
     );
 
-export async function handleSetPet(
-  ctx: CommandContext & { pet: petKeys; holder: User },
-) {
-  const { pet, holder, interaction, storage } = ctx;
-  try {
-    await storage.setPetHolder(pet, holder.id);
-    const resEmbed = new EmbedBuilder()
-      .setColor(pet === "summon" ? "Aqua" : "DarkRed")
-      .setDescription(`The ${pet} pet's holder is now: <@${holder.id}>.`);
-    await interaction.reply({
-      embeds: [resEmbed],
-    });
-  } catch (e) {
-    catchAllInteractionReply(interaction);
-  }
+export async function handleSetPet(ctx: CommandContext & { pet: PetType }) {
+  const { pet, interaction, storage } = ctx;
+  const holder = interaction.options.getUser("holder", true);
+
+  await storage.setPetHolder(pet, holder.id);
+
+  const resEmbed = new EmbedBuilder()
+    .setColor(petColors[pet])
+    .setDescription(`The ${pet} pet's holder is now: <@${holder.id}>.`);
+
+  await interaction.reply({
+    embeds: [resEmbed],
+  });
 }
