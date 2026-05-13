@@ -180,14 +180,6 @@ export class RedisStorage extends Storage {
     }
   }
 
-  public async getPetHolder(key: PetType): Promise<string | null> {
-    return await this._get(key);
-  }
-
-  public async setPetHolder(pet: PetType, holder: string): Promise<void> {
-    await this._set(pet, holder);
-  }
-
   public async addPet(type: PetType, owner: string) {
     try {
       const id = await this._client.incr(RedisKeys.petId());
@@ -268,7 +260,7 @@ export class RedisStorage extends Storage {
       const pet = await this._hGetAll(RedisKeys.pets(petId));
       const parsedPet = parsePetHash(pet);
       if (!parsedPet) {
-        return { success: false, pet: parsedPet };
+        return { success: false, pet: null };
       } else {
         if (parsedPet.holder === userId)
           return { success: false, pet: parsedPet };

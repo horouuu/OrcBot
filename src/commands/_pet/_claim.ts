@@ -31,14 +31,17 @@ export async function handleClaimPet(ctx: CommandContext) {
   const { success, pet } = await storage.claimPet(petId, claimerId);
 
   if (success) {
-    const holderExistedDesc = `${capitalized(pet.type)} pet ${pet.id} has been moved from <@${pet.holder}> to <@${claimerId}>.`;
-    const noHolderDesc = `${capitalized(pet.type)} pet ${pet.id} has been moved from its owner <@${pet.owner}> to <@${claimerId}>.`;
+    const holderExistedDesc = `<@${pet.holder}> :arrow_right: <@${claimerId}>.`;
+    const noHolderDesc = `<@${pet.owner}> :arrow_right: <@${claimerId}>.`;
     const resEmbed = new EmbedBuilder()
-      .setDescription(pet.holder ? holderExistedDesc : noHolderDesc)
-      .setColor(petColors[pet.type])
-      .setFooter({
-        text: `${capitalized(pet.type)} pet ${pet.id} is owned by ${pet.owner}`,
-      });
+      .setTitle(`Pet ${pet.id} (${pet.type})`)
+      .setDescription(
+        "Claimed!\n" +
+          (pet.holder ? holderExistedDesc : noHolderDesc) +
+          `\n\nPet ${pet.id} is owned by <@${pet.owner}>.`,
+      )
+      .setColor(petColors[pet.type]);
+
     await interaction.reply({ embeds: [resEmbed] });
   } else {
     if (pet) {

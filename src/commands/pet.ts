@@ -1,25 +1,34 @@
 import { SlashCommandBuilder } from "discord.js";
 import { CommandContext } from "../bot.types.js";
 import { petCommands } from "./_pet/_pet-utils.js";
-import { buildSetPetSubcommandGroup, handleSetPet } from "./_pet/_set.js";
+import { buildSetPetSubcommand, handleSetPet } from "./_pet/_set.js";
 import { PetType } from "./_pet/_pet-utils.js";
-import { buildAddPetSubcommandBuilder, handleAddPet } from "./_pet/_add.js";
-import { buildDelPetSubcommandBuilder, handleDelPet } from "./_pet/_del.js";
-import { catchAllInteractionReply } from "../utils/funcs.js";
-import { buildListPetSubcommandBuilder, handleListPet } from "./_pet/_list.js";
 import {
-  buildClaimPetSubcommandBuilder,
+  buildAddPetSubcommandBuilder as buildAddPetSubcommand,
+  handleAddPet,
+} from "./_pet/_add.js";
+import {
+  buildDelPetSubcommandBuilder as buildDelPetSubcommand,
+  handleDelPet,
+} from "./_pet/_del.js";
+import { catchAllInteractionReply } from "../utils/funcs.js";
+import {
+  buildListPetSubcommandBuilder as buildListPetSubcommand,
+  handleListPet,
+} from "./_pet/_list.js";
+import {
+  buildClaimPetSubcommandBuilder as buildClaimPetSubcommand,
   handleClaimPet,
 } from "./_pet/_claim.js";
 
 const petData = new SlashCommandBuilder()
   .setName("pet")
   .setDescription("Guild pet lending system.")
-  .addSubcommandGroup(buildSetPetSubcommandGroup)
-  .addSubcommand(buildAddPetSubcommandBuilder)
-  .addSubcommand(buildDelPetSubcommandBuilder)
-  .addSubcommand(buildListPetSubcommandBuilder)
-  .addSubcommand(buildClaimPetSubcommandBuilder);
+  .addSubcommand(buildSetPetSubcommand)
+  .addSubcommand(buildAddPetSubcommand)
+  .addSubcommand(buildDelPetSubcommand)
+  .addSubcommand(buildListPetSubcommand)
+  .addSubcommand(buildClaimPetSubcommand);
 
 const handlers = {
   [petCommands.PET_ADD]: handleAddPet,
@@ -35,13 +44,11 @@ const pet = {
     const { interaction } = cmdContext;
     if (!interaction.isChatInputCommand()) return;
     let cmdGroup = interaction.options.getSubcommandGroup() as petCommands;
-    const pet = interaction.options.getSubcommand() as PetType;
-
     if (!cmdGroup)
       cmdGroup = interaction.options.getSubcommand() as petCommands;
 
     try {
-      await handlers[cmdGroup]({ ...cmdContext, pet });
+      await handlers[cmdGroup]({ ...cmdContext });
     } catch (e) {
       console.error(e);
       catchAllInteractionReply(interaction);

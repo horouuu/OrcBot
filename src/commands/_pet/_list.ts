@@ -61,7 +61,7 @@ export async function handleListPet(ctx: CommandContext) {
     } else {
       resEmbed.setFields(
         pets.map((i) => ({
-          name: `${capitalized(i.type)} pet ${i.id}`,
+          name: `Pet ${i.id}`,
           value: `Owner: <@${i.owner}>\nCurrent holder: ${i.holder ? `<@${i.holder}>` : "-"}`,
         })),
       );
