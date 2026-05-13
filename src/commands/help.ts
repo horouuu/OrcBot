@@ -14,12 +14,28 @@ const help = {
       .setTitle("Commands")
       .setFields([
         {
-          name: "`/pet set`",
-          value: "Sets the holder of a pet.",
+          name: "`/pet set [petId] [holder]`",
+          value:
+            "Forces the holder of a pet to change to the specified holder.",
         },
         {
-          name: "`/pet check`",
-          value: "Returns the last set holder of a pet.",
+          name: "`/pet list [all | summon | furnace | altar]`",
+          value:
+            'Lists all pets of the specified type. "All" will list all available pets instead.',
+        },
+        {
+          name: "`/pet claim [petId]`",
+          value:
+            "Claims a pet from its previous holder, or the owner if there is no current holder.",
+        },
+        {
+          name: "`/pet add [type] [owner]`",
+          value:
+            "Adds a pet to the pet system and associates it with the specified owner.",
+        },
+        {
+          name: "`/pet del [petId]`",
+          value: "Removes the specified pet from the pet system.",
         },
         {
           name: "`/ping`",
