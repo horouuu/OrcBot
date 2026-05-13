@@ -8,6 +8,13 @@ export abstract class Storage {
   abstract delPet(
     petId: number,
   ): Promise<{ success: true; pet: PetHash } | { success: false; pet: null }>;
+  abstract listPets(type: PetType | "all"): Promise<PetHash[]>;
+  abstract claimPet(
+    petId: number,
+    userId: string,
+  ): Promise<
+    { success: false; pet: PetHash | null } | { success: true; pet: PetHash }
+  >;
 
   handleGenericDbError(e: Error) {
     console.error(e);

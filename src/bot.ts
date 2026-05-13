@@ -26,6 +26,7 @@ client.once(Events.ClientReady, async (readyClient) => {
 });
 
 const commands = await initCommands(config);
+console.log("Successfully registered commands:", commands);
 client.on(Events.InteractionCreate, (interaction) => {
   commandHandler(interaction, commands, handlerCtx);
 });

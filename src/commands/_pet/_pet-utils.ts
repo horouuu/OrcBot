@@ -1,10 +1,11 @@
 import { ColorResolvable } from "discord.js";
 
 export enum petCommands {
-  PET_CHECK = "check",
   PET_SET = "set",
   PET_ADD = "add",
   PET_DEL = "del",
+  PET_LIST = "list",
+  PET_CLAIM = "claim",
 }
 
 export type PetType = "furnace" | "summon" | "altar";

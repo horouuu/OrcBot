@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { petColors, petCommands, PetType } from "./_pet-utils.js";
 import { CommandContext } from "../../bot.types.js";
+import { capitalized } from "../../utils/funcs.js";
 
 export const buildDelPetSubcommandBuilder = (
   opt: SlashCommandSubcommandBuilder,
@@ -14,15 +15,14 @@ export const buildDelPetSubcommandBuilder = (
 
 export async function handleDelPet(ctx: CommandContext) {
   const { storage, interaction } = ctx;
-  const petId = interaction.options.getNumber(petCommands.PET_DEL, true);
+  const petId = interaction.options.getNumber("id", true);
   const { success, pet } = await storage.delPet(petId);
 
   if (success) {
     const resEmbed = new EmbedBuilder()
-      .setDescription("Successfully deleted pet:")
+      .setDescription(`Successfully deleted pet with id ${pet.id}:`)
       .setFields([
-        { name: "Id", value: pet.id.toString() },
-        { name: "Type", value: pet.type },
+        { name: "Type", value: capitalized(pet.type) },
         { name: "Owner", value: `<@${pet.owner}>` },
         {
           name: "Last known holder",
