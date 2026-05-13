@@ -1,4 +1,5 @@
 import { PetHash, PetType } from "../commands/_pet/_pet-utils.js";
+import { PowerData, PowerHash } from "../commands/power.js";
 
 export abstract class Storage {
   abstract addPet(type: PetType, owner: string): Promise<void>;
@@ -13,7 +14,15 @@ export abstract class Storage {
     { success: false; pet: PetHash | null } | { success: true; pet: PetHash }
   >;
 
+  abstract updatePower(
+    memberId: string,
+    timestamp: number,
+    power: PowerHash,
+  ): Promise<void>;
+
   handleGenericDbError(e: Error) {
     console.error(e);
   }
+
+  abstract getCurrPower(memberId: string): Promise<PowerData | null>;
 }

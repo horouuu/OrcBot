@@ -2,7 +2,13 @@ import { ConfigType } from "../utils/config.js";
 import { Storage } from "./Storage.js";
 import { createClient } from "redis";
 import { parsePetHash, PetHash, PetType } from "../commands/_pet/_pet-utils.js";
-import { CommandInteractionOptionResolver } from "discord.js";
+import {
+  isPowerString,
+  isPowerUnit,
+  PowerData,
+  PowerHash,
+  PowerString,
+} from "../commands/power.js";
 
 enum RedisTypes {
   STRING = "string",
@@ -15,6 +21,8 @@ const RedisKeys = {
   pets: (id: number) => `pets:list:${id}`,
   petSet: (type: PetType) => `pets:type:${type}`,
   petId: () => `pets:id`,
+  memPowerHistory: (memId: string) => `members:${memId}:power:history`,
+  memPowerCurrent: (memId: string) => `members:${memId}:power:current`,
 };
 
 function createNewPet(id: number, type: PetType, owner: string): PetHash {
@@ -23,6 +31,16 @@ function createNewPet(id: number, type: PetType, owner: string): PetHash {
     type,
     owner,
     holder: "",
+  };
+}
+
+function parseStoredPower(inp: Record<string, string>): PowerData | null {
+  if (!inp.timestamp || !inp.power) return null;
+  if (!isPowerString(inp.power)) return null;
+
+  return {
+    timestamp: Number(inp.timestamp),
+    power: inp.power,
   };
 }
 
@@ -270,6 +288,40 @@ export class RedisStorage extends Storage {
     } catch (e) {
       this.handleGenericDbError(e as Error);
       throw new Error("[claimPet] Error.");
+    }
+  }
+
+  public async updatePower(
+    memberId: string,
+    timestamp: number,
+    power: PowerHash,
+  ): Promise<void> {
+    try {
+      const currentKey = RedisKeys.memPowerCurrent(memberId);
+      const historyKey = RedisKeys.memPowerHistory(memberId);
+      const powerString: PowerString = `${power.value} ${power.units}`;
+
+      await this._hSet(currentKey, { timestamp, power: powerString });
+      await this._client.zAdd(historyKey, {
+        score: timestamp,
+        value: powerString,
+      });
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[updatePower] Error.");
+    }
+  }
+
+  public async getCurrPower(memberId: string): Promise<PowerData | null> {
+    try {
+      const currentKey = RedisKeys.memPowerCurrent(memberId);
+      const res = await this._hGetAll(currentKey);
+      const storedPower = parseStoredPower(res);
+      if (!storedPower) return null;
+      return storedPower;
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getCurrPower] Error.");
     }
   }
 }
