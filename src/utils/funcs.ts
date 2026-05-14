@@ -1,5 +1,5 @@
 import { CommandContext } from "../bot.types.js";
-import { MessageFlags } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 
 const ERR_MSG_GENERIC =
   "Something went wrong in the background. Contact the developers for help.";
@@ -39,6 +39,12 @@ export async function catchAllInteractionReply(
       "Couldn't forward error through interaction reply or follow up.",
     );
   }
+}
+
+export function getExpirationEmbed() {
+  return new EmbedBuilder()
+    .setDescription("Interaction expired.")
+    .setColor("DarkRed");
 }
 
 export const capitalized = (str: string) =>

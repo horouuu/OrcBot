@@ -5,7 +5,6 @@ import {
 } from "discord.js";
 import { petColors, petCommands } from "./_pet-utils.js";
 import { CommandContext } from "../../bot.types.js";
-import { capitalized } from "../../utils/funcs.js";
 
 export const buildClaimPetSubcommandBuilder = (
   opt: SlashCommandSubcommandBuilder,

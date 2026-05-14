@@ -1,3 +1,4 @@
+import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
 import { PetHash, PetType } from "../commands/_pet/_pet-utils.js";
 import { PowerData, PowerHash } from "../commands/_power/_power-utils.js";
 
@@ -29,4 +30,7 @@ export abstract class Storage {
     memberId: string,
     size: number,
   ): Promise<PowerData[] | null>;
+
+  abstract getConfigs(configs?: ConfigKeys[]): Promise<Partial<ConfigHash>>;
+  abstract setConfigs(configs: ConfigHash): Promise<void>;
 }

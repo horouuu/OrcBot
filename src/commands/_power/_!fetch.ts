@@ -20,6 +20,20 @@ export async function handleFetchPower(ctx: CommandContext) {
   const { interaction, storage } = ctx;
   // TODO: channel config
   const channelId = interaction.channelId;
+  const allowedChannels = (await storage.getConfigs(["guildChannelIds"]))
+    .guildChannelIds;
+
+  if (!allowedChannels?.includes(channelId)) {
+    const failEmbed = new EmbedBuilder()
+      .setDescription("This command can only be run within guild channels.")
+      .setColor("DarkRed");
+
+    return await interaction.reply({
+      embeds: [failEmbed],
+      flags: [MessageFlags.Ephemeral],
+    });
+  }
+
   const user = interaction.options.getUser("user", true);
   const userId = user.id;
   const storedPower = await storage.getCurrPower(userId);

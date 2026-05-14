@@ -16,7 +16,7 @@ const powerData = new SlashCommandBuilder()
   .addSubcommand(buildUpdatePowerSubcommand)
   .addSubcommand(buildFetchPowerSubcommand);
 
-type PowerCmds = "update";
+type PowerCmds = "update" | "fetch";
 
 const handlers = {
   update: handleUpdatePower,

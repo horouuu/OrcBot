@@ -8,6 +8,8 @@ import {
   PowerHash,
   PowerString,
 } from "../commands/_power/_power-utils.js";
+import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
+import { StringMappingType } from "typescript";
 
 enum RedisTypes {
   STRING = "string",
@@ -22,6 +24,7 @@ const RedisKeys = {
   petId: () => `pets:id`,
   memPowerHistory: (memId: string) => `members:${memId}:power:history`,
   memPowerCurrent: (memId: string) => `members:${memId}:power:current`,
+  configs: () => `configs`,
 };
 
 function createNewPet(id: number, type: PetType, owner: string): PetHash {
@@ -41,6 +44,55 @@ function parseStoredPower(inp: Record<string, string>): PowerData | null {
     timestamp: Number(inp.timestamp),
     power: inp.power,
   };
+}
+
+const configParsers = {
+  guildChannelIds: (inp: string): string[] | null => {
+    try {
+      const arr = JSON.parse(inp);
+
+      if (!Array.isArray(arr)) return null;
+
+      return arr.filter((v): v is string => typeof v === "string");
+    } catch {
+      return null;
+    }
+  },
+} satisfies {
+  [K in ConfigKeys]: (inp: string) => ConfigHash[K] | null;
+};
+
+function parseConfigKey(key: string): ConfigKeys | null {
+  if (key in configParsers) {
+    return key as ConfigKeys;
+  }
+
+  return null;
+}
+
+function parseConfig<K extends ConfigKeys>(
+  key: K,
+  inp: string,
+): ConfigHash[K] | null {
+  return configParsers[key](inp);
+}
+
+function parseConfigs(
+  rawObj: Record<string, string | null>,
+): Partial<ConfigHash> {
+  const parsed: Partial<ConfigHash> = {};
+  for (const [key, val] of Object.entries(rawObj)) {
+    if (!val) continue;
+    const parsedKey = parseConfigKey(key);
+    if (!parsedKey) continue;
+
+    const parsedVal = parseConfig(parsedKey, val);
+    if (!parsedVal) continue;
+
+    parsed[parsedKey] = parsedVal;
+  }
+
+  return parsed;
 }
 
 type storeKeys = PetType;
@@ -347,6 +399,46 @@ export class RedisStorage extends Storage {
     } catch (e) {
       this.handleGenericDbError(e as Error);
       throw new Error("[getPowerHistory] Error.");
+    }
+  }
+
+  public async getConfigs(
+    configs?: ConfigKeys[],
+  ): Promise<Partial<ConfigHash>> {
+    try {
+      const key = RedisKeys.configs();
+      let rawConfigs: Record<string, string | null> = {};
+
+      if (!configs) {
+        rawConfigs = await this._hGetAll(key);
+      } else if (configs.length === 1) {
+        rawConfigs = {
+          [configs[0]]: await this._hGet(key, configs[0]),
+        };
+      } else {
+        const vals = await this._client.hmGet(key, configs);
+        rawConfigs = Object.fromEntries(configs.map((i, j) => [i, vals[j]]));
+      }
+
+      const parsedConfigs = parseConfigs(rawConfigs);
+      return parsedConfigs;
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getConfigs] Error.");
+    }
+  }
+
+  public async setConfigs(configs: ConfigHash): Promise<void> {
+    try {
+      let stringified: Record<string, string> = {};
+      for (const [k, v] of Object.entries(configs)) {
+        stringified[k] = JSON.stringify(v);
+      }
+
+      await this._hSet(RedisKeys.configs(), stringified);
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[setConfigs] Error.");
     }
   }
 }
