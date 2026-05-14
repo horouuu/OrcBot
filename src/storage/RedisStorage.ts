@@ -24,6 +24,7 @@ const RedisKeys = {
   petId: () => `pets:id`,
   memPowerHistory: (memId: string) => `members:${memId}:power:history`,
   memPowerCurrent: (memId: string) => `members:${memId}:power:current`,
+  memIndex: () => `members:index`,
   configs: () => `configs`,
 };
 
@@ -353,6 +354,7 @@ export class RedisStorage extends Storage {
       const powerString: PowerString = `${power.value} ${power.units}`;
 
       await this._hSet(currentKey, { timestamp, power: powerString });
+      await this._sAdd(RedisKeys.memIndex(), memberId);
       await this._client.zAdd(historyKey, {
         score: timestamp,
         value: powerString,
