@@ -49,3 +49,25 @@ export function getExpirationEmbed() {
 
 export const capitalized = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
+
+export async function checkIfInAllowedChannels(ctx: CommandContext) {
+  const { interaction, storage } = ctx;
+  const channelId = interaction.channelId;
+  const allowedChannels = (await storage.getConfigs(["guildChannelIds"]))
+    .guildChannelIds;
+
+  if (!allowedChannels?.includes(channelId)) {
+    const failEmbed = new EmbedBuilder()
+      .setDescription("This command can only be run within guild channels.")
+      .setColor("DarkRed");
+
+    await interaction.reply({
+      embeds: [failEmbed],
+      flags: [MessageFlags.Ephemeral],
+    });
+
+    return false;
+  }
+
+  return true;
+}

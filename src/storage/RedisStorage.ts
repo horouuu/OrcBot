@@ -9,7 +9,6 @@ import {
   PowerString,
 } from "../commands/_power/_power-utils.js";
 import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
-import { StringMappingType } from "typescript";
 
 enum RedisTypes {
   STRING = "string",
@@ -441,6 +440,31 @@ export class RedisStorage extends Storage {
     } catch (e) {
       this.handleGenericDbError(e as Error);
       throw new Error("[setConfigs] Error.");
+    }
+  }
+
+  public async getAllCurrentPower(): Promise<[string, PowerData][]> {
+    try {
+      const memIndex = await this._sGet(RedisKeys.memIndex());
+      if (!memIndex) return [];
+      const memKeys = memIndex.map((m) => `members:${m}:power:current`);
+
+      const pipeline = this._client.multi();
+
+      for (const k of memKeys) {
+        pipeline.hGetAll(k);
+      }
+      const res = (await pipeline.exec())
+        .map((i, j) => [
+          memIndex[j],
+          parseStoredPower(i as unknown as Record<string, string>),
+        ])
+        .filter((i) => i[1] !== null) as [string, PowerData][];
+
+      return res;
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getAllCurrentPower] Error.");
     }
   }
 }

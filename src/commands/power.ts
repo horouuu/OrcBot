@@ -9,18 +9,21 @@ import {
   buildFetchPowerSubcommand,
   handleFetchPower,
 } from "./_power/_!fetch.js";
+import { buildLbSubcommand, handleLb } from "./_power/_!lb.js";
 
 const powerData = new SlashCommandBuilder()
   .setName("power")
   .setDescription("Guild power-related commands.")
   .addSubcommand(buildUpdatePowerSubcommand)
-  .addSubcommand(buildFetchPowerSubcommand);
+  .addSubcommand(buildFetchPowerSubcommand)
+  .addSubcommand(buildLbSubcommand);
 
-type PowerCmds = "update" | "fetch";
+type PowerCmds = "update" | "fetch" | "lb";
 
 const handlers = {
   update: handleUpdatePower,
   fetch: handleFetchPower,
+  lb: handleLb,
 };
 
 const power = {
@@ -33,6 +36,7 @@ const power = {
       await handlers[subCmd](cmdContext);
     } catch (e) {
       catchAllInteractionReply(interaction);
+      console.error(e);
     }
   },
 } satisfies Command;

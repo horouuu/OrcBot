@@ -33,4 +33,5 @@ export abstract class Storage {
 
   abstract getConfigs(configs?: ConfigKeys[]): Promise<Partial<ConfigHash>>;
   abstract setConfigs(configs: ConfigHash): Promise<void>;
+  abstract getAllCurrentPower(): Promise<[string, PowerData][]>;
 }

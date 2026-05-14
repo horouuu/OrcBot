@@ -18,7 +18,7 @@ export const buildFetchPowerSubcommand = (opt: SlashCommandSubcommandBuilder) =>
 
 export async function handleFetchPower(ctx: CommandContext) {
   const { interaction, storage } = ctx;
-  // TODO: channel config
+
   const channelId = interaction.channelId;
   const allowedChannels = (await storage.getConfigs(["guildChannelIds"]))
     .guildChannelIds;
