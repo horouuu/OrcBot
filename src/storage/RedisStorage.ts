@@ -4,11 +4,10 @@ import { createClient } from "redis";
 import { parsePetHash, PetHash, PetType } from "../commands/_pet/_pet-utils.js";
 import {
   isPowerString,
-  isPowerUnit,
   PowerData,
   PowerHash,
   PowerString,
-} from "../commands/power.js";
+} from "../commands/_power/_power-utils.js";
 
 enum RedisTypes {
   STRING = "string",
@@ -322,6 +321,32 @@ export class RedisStorage extends Storage {
     } catch (e) {
       this.handleGenericDbError(e as Error);
       throw new Error("[getCurrPower] Error.");
+    }
+  }
+
+  public async getPowerHistory(
+    memberId: string,
+    size: number,
+  ): Promise<PowerData[] | null> {
+    try {
+      const historyKey = RedisKeys.memPowerHistory(memberId);
+      const res = await this._client.zRangeWithScores(historyKey, 0, size - 1);
+      if (res.length === 0) return null;
+
+      const powerDataArr = res
+        .map((i) =>
+          parseStoredPower({
+            timestamp: i.score.toString(),
+            power: i.value,
+          }),
+        )
+        .filter((k) => k !== null);
+
+      if (powerDataArr.length === 0) return null;
+      return powerDataArr;
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getPowerHistory] Error.");
     }
   }
 }

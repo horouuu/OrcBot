@@ -25,7 +25,7 @@ export async function catchAllInteractionReply(
   errMsg: string = ERR_MSG_GENERIC,
 ) {
   if (!errMsg) errMsg = ERR_MSG_GENERIC;
-
+  console.error("Generic error triggered.");
   if (interaction.isRepliable()) {
     if (interaction.replied || interaction.deferred) {
       interaction.followUp(errMsg).catch((e) => console.error(e));

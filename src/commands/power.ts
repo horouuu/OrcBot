@@ -1,23 +1,40 @@
-const POWER_UNITS = ["M", "B", "T", "Qa", "Qn"] as const;
-export type PowerUnits = (typeof POWER_UNITS)[number];
-export function isPowerUnit(x: string): x is PowerUnits {
-  return POWER_UNITS.includes(x as PowerUnits);
-}
+import { SlashCommandBuilder } from "discord.js";
+import { CommandContext, Command } from "../bot.types.js";
+import { catchAllInteractionReply } from "../utils/funcs.js";
+import {
+  buildUpdatePowerSubcommand,
+  handleUpdatePower,
+} from "./_power/_update.js";
+import {
+  buildFetchPowerSubcommand,
+  handleFetchPower,
+} from "./_power/_!fetch.js";
 
-export function isPowerString(x: string): x is PowerString {
-  const parts = x.split(" ");
+const powerData = new SlashCommandBuilder()
+  .setName("power")
+  .setDescription("Guild power-related commands.")
+  .addSubcommand(buildUpdatePowerSubcommand)
+  .addSubcommand(buildFetchPowerSubcommand);
 
-  if (parts.length !== 2) return false;
+type PowerCmds = "update";
 
-  const [num, unit] = parts;
-
-  return !Number.isNaN(Number(num)) && isPowerUnit(unit);
-}
-
-export type PowerString = `${number} ${PowerUnits}`;
-export type PowerHash = {
-  value: number;
-  units: PowerUnits;
+const handlers = {
+  update: handleUpdatePower,
+  fetch: handleFetchPower,
 };
 
-export type PowerData = { timestamp: number; power: PowerString };
+const power = {
+  ...powerData.toJSON(),
+  execute: async (cmdContext: CommandContext) => {
+    const { interaction } = cmdContext;
+    if (!interaction.isChatInputCommand()) return;
+    const subCmd = interaction.options.getSubcommand() as PowerCmds;
+    try {
+      await handlers[subCmd](cmdContext);
+    } catch (e) {
+      catchAllInteractionReply(interaction);
+    }
+  },
+} satisfies Command;
+
+export { power };
