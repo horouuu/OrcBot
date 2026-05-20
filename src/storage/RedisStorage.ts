@@ -1,5 +1,5 @@
 import { ConfigType } from "../utils/config.js";
-import { Storage } from "./Storage.js";
+import Storage from "./Storage.js";
 import { createClient } from "redis";
 import { parsePetHash, PetHash, PetType } from "../commands/_pet/_pet-utils.js";
 import {
@@ -9,6 +9,10 @@ import {
   PowerString,
 } from "../commands/_power/_power-utils.js";
 import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
+import {
+  AchData,
+  AchKeys,
+} from "../commands/_achievements/_achievements-utils.js";
 
 enum RedisTypes {
   STRING = "string",
@@ -25,6 +29,7 @@ const RedisKeys = {
   memPowerCurrent: (memId: string) => `members:${memId}:power:current`,
   memIndex: () => `members:index`,
   configs: () => `configs`,
+  achievement: (memId: string, achKey: AchKeys) => `members:${memId}:${achKey}`,
 };
 
 function createNewPet(id: number, type: PetType, owner: string): PetHash {
@@ -467,4 +472,23 @@ export class RedisStorage extends Storage {
       throw new Error("[getAllCurrentPower] Error.");
     }
   }
+
+  public async updateAchievementProgress<T extends AchKeys>(
+    memberId: string,
+    achKey: T,
+    achData: AchData<T>,
+  ): Promise<void> {
+    const key = RedisKeys.achievement(memberId, achKey);
+    try {
+      await this._hSet(RedisKeys.achievement(memberId, achKey), achData);
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[updateAchievementProgress] Error.");
+    }
+  }
+
+  public async getAchievementProgress(
+    memberId: string,
+    achKey: AchKeys,
+  ): Promise<void> {}
 }

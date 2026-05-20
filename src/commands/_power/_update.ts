@@ -51,11 +51,11 @@ export async function handleUpdatePower(ctx: CommandContext) {
     if (currStoredPower) {
       const storedTimestamp = currStoredPower.timestamp;
       const elapsed = calledTimestamp - storedTimestamp;
-      if (elapsed / (1000 * 60 * 60 * 24) < 7) {
-        const nextUpdateTimestamp = storedTimestamp + 1000 * 60 * 60 * 24 * 7;
+      if (elapsed / (1000 * 60 * 60 * 24) < 3) {
+        const nextUpdateTimestamp = storedTimestamp + 1000 * 60 * 60 * 24 * 3;
         const failEmbed = new EmbedBuilder()
           .setDescription(
-            `You have already updated your power in the past 7 days.\nYou will be able to update your power again on: <t:${Math.floor(nextUpdateTimestamp / 1000)}:f>`,
+            `You have already updated your power in the past 3 days.\nYou will be able to update your power again on: <t:${Math.floor(nextUpdateTimestamp / 1000)}:f>`,
           )
           .setColor("DarkRed");
         return await interaction.reply({

@@ -1,3 +1,4 @@
+export type AchKeys = "dtm";
 export type AchievementRewardRecord = { required: number; reward: number };
 /*
     required: unique pets opened
@@ -68,3 +69,12 @@ export function toText(inp: AchievementRewardRecord[]) {
     .map((d) => `${d.required}`.padEnd(10) + `${d.reward.toFixed(2)}%`)
     .join("\n");
 }
+
+type AchDataMap = {
+  dtm: {
+    uniquePets: number;
+    eggsOpened: number;
+  };
+};
+
+export type AchData<T extends keyof AchDataMap> = AchDataMap[T];
