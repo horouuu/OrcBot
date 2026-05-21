@@ -56,6 +56,7 @@ export async function handleFetchPower(ctx: CommandContext) {
         `**History**\n` +
         powerHistory
           .map((p) => `<t:${Math.floor(p.timestamp / 1000)}:d>: ${p.power}`)
+          .reverse()
           .join("\n");
 
     const resEmbed = new EmbedBuilder()
