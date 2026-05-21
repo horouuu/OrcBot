@@ -39,8 +39,8 @@ export async function handleLb(ctx: CommandContext) {
       const finalAPwr = aPwr / (normalizeA ? 1000 : 1);
       const finalBPwr = bPwr / (normalizeB ? 1000 : 1);
 
-      if (aRank !== bRank) return aRank - bRank;
-      return finalAPwr - finalBPwr;
+      if (aRank !== bRank) return bRank - aRank;
+      return finalBPwr - finalAPwr;
     })
     .map(
       (i, j) =>
