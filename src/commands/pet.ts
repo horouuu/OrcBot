@@ -2,7 +2,6 @@ import { SlashCommandBuilder } from "discord.js";
 import { CommandContext } from "../bot.types.js";
 import { petCommands } from "./_pet/_pet-utils.js";
 import { buildSetPetSubcommand, handleSetPet } from "./_pet/_set.js";
-import { PetType } from "./_pet/_pet-utils.js";
 import {
   buildAddPetSubcommandBuilder as buildAddPetSubcommand,
   handleAddPet,
