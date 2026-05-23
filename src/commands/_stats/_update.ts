@@ -38,7 +38,7 @@ export async function handleUpdateStats(ctx: CommandContext) {
 
     for (const { id } of fieldData) {
       const raw = submitted.fields.getTextInputValue(id);
-      const val = Number(raw);
+      const val = Number(raw.replaceAll("%", ""));
 
       if (!Number.isFinite(val)) {
         const failEmbed = new EmbedBuilder()
