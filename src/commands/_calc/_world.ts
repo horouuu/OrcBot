@@ -18,7 +18,7 @@ export const buildCalcWorldSubcommand = (opt: SlashCommandSubcommandBuilder) =>
     .addNumberOption((opt) =>
       opt
         .setName("time")
-        .setDescription("The time at which you clear this world in")
+        .setDescription("The time in seconds at which you clear this world in")
         .setRequired(true)
         .setMinValue(1),
     );
@@ -31,8 +31,8 @@ export async function handleCalcWorld(ctx: CommandContext) {
 
   const stats = await storage.getStats(interaction.user.id);
 
-  const egrMult = 1 + stats.egr / 100;
-  const gdrMult = 1 + stats.gdr / 100;
+  const egrMult = Math.max(1, stats.egr / 100);
+  const gdrMult = Math.max(1, stats.gdr / 100);
   //const odrMult = 1 + stats.odr / 100;
 
   const expPerClear = egrMult * worldStats.exp + 460 * stats.eed;
@@ -44,7 +44,7 @@ export async function handleCalcWorld(ctx: CommandContext) {
   const goldPerDay = goldPerHour * 24;
 
   const res = `Exp/hr: ${expPerHour.toLocaleString()}\nExp/day: ${expPerDay.toLocaleString()}\n\nGold/hr: ${goldPerHour.toLocaleString()}\nGold/day: ${goldPerDay.toLocaleString()}`;
-  const embedText = `**Rates**\n${res}\n\n**Your stats**\nExp Gain Rate: ${stats.egr}%\nGold Drop Rate: ${stats.gdr}%\nExtra Exp Drop: ${stats.eed}\nExtra Gold Drop: ${stats.egd}`;
+  const embedText = `**Rates**\n${res}\n\n**Your stats**\nClear time: ${time} seconds\n\nExp Gain Rate: ${stats.egr}%\nGold Drop Rate: ${stats.gdr}%\nExtra Exp Drop: ${stats.eed}\nExtra Gold Drop: ${stats.egd}`;
 
   const resEmbed = new EmbedBuilder()
     .setTitle(`Calculations for World ${world}`)
