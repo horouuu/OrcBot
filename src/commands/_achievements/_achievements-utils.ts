@@ -78,3 +78,19 @@ type AchDataMap = {
 };
 
 export type AchData<T extends keyof AchDataMap> = AchDataMap[T];
+
+export function parseAchData<T extends keyof AchDataMap>(key: T, d: Object) {
+  if (!d) return null;
+  if (key === "dtm") {
+    if (!("eggsOpened" in d) || !("uniquePets" in d)) {
+      return {
+        eggsOpened: 0,
+        uniquePets: 0,
+      };
+    }
+
+    return d as AchData<typeof key>;
+  }
+
+  return null;
+}

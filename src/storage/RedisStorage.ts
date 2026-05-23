@@ -12,7 +12,10 @@ import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
 import {
   AchData,
   AchKeys,
+  parseAchData,
 } from "../commands/_achievements/_achievements-utils.js";
+import { parseStats, Stats } from "../commands/_stats/_stats-utils.js";
+import { isThisTypeNode } from "typescript";
 
 enum RedisTypes {
   STRING = "string",
@@ -30,6 +33,7 @@ const RedisKeys = {
   memIndex: () => `members:index`,
   configs: () => `configs`,
   achievement: (memId: string, achKey: AchKeys) => `members:${memId}:${achKey}`,
+  stats: (memId: string) => `members:${memId}:stats`,
 };
 
 function createNewPet(id: number, type: PetType, owner: string): PetHash {
@@ -480,7 +484,7 @@ export class RedisStorage extends Storage {
   ): Promise<void> {
     const key = RedisKeys.achievement(memberId, achKey);
     try {
-      await this._hSet(RedisKeys.achievement(memberId, achKey), achData);
+      await this._hSet(key, achData);
     } catch (e) {
       this.handleGenericDbError(e as Error);
       throw new Error("[updateAchievementProgress] Error.");
@@ -490,5 +494,35 @@ export class RedisStorage extends Storage {
   public async getAchievementProgress(
     memberId: string,
     achKey: AchKeys,
-  ): Promise<void> {}
+  ): Promise<AchData<typeof achKey> | null> {
+    try {
+      const key = RedisKeys.achievement(memberId, achKey);
+      const raw = await this._hGetAll(key);
+      return parseAchData(achKey, raw);
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getAchievementProgress] Error.");
+    }
+  }
+
+  public async updateStats(memberId: string, stats: Stats): Promise<void> {
+    const key = RedisKeys.stats(memberId);
+    try {
+      await this._hSet(key, stats);
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[updateStats] Error.");
+    }
+  }
+
+  public async getStats(memberId: string): Promise<Stats> {
+    const key = RedisKeys.stats(memberId);
+    try {
+      const raw = await this._hGetAll(key);
+      return parseStats(raw);
+    } catch (e) {
+      this.handleGenericDbError(e as Error);
+      throw new Error("[getStats] Error.");
+    }
+  }
 }

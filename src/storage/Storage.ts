@@ -5,6 +5,7 @@ import {
 import { ConfigHash, ConfigKeys } from "../commands/_config/_config-utils.js";
 import { PetHash, PetType } from "../commands/_pet/_pet-utils.js";
 import { PowerData, PowerHash } from "../commands/_power/_power-utils.js";
+import { Stats } from "../commands/_stats/_stats-utils.js";
 
 export default abstract class Storage {
   abstract addPet(type: PetType, owner: string): Promise<void>;
@@ -47,5 +48,8 @@ export default abstract class Storage {
   abstract getAchievementProgress(
     memberId: string,
     achKey: AchKeys,
-  ): Promise<void>;
+  ): Promise<AchData<typeof achKey> | null>;
+
+  abstract updateStats(memberId: string, stats: Stats): Promise<void>;
+  abstract getStats(memberId: string): Promise<Stats>;
 }
